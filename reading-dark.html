@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>占卜解读 - 塔罗嗒嗒 (深色)</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="%23ffffff10"/><circle cx="30" cy="30" r="0.8" fill="%23ffffff08"/><circle cx="50" cy="10" r="0.6" fill="%23ffffff08"/><circle cx="70" cy="40" r="1.2" fill="%23ffffff10"/><circle cx="90" cy="20" r="0.8" fill="%23ffffff08"/><circle cx="20" cy="50" r="1" fill="%23ffffff10"/><circle cx="40" cy="70" r="0.6" fill="%23ffffff08"/><circle cx="60" cy="50" r="0.8" fill="%23ffffff08"/><circle cx="80" cy="80" r="1" fill="%23ffffff10"/><circle cx="10" cy="90" r="0.8" fill="%23ffffff08"/></svg>'), 
+                 radial-gradient(circle at 20% 30%, rgba(103, 58, 183, 0.15) 0%, transparent 50%),
+                 radial-gradient(circle at 80% 70%, rgba(63, 81, 181, 0.15) 0%, transparent 50%);
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid rgba(122, 93, 199, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .back-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .chat-container::-webkit-scrollbar {
+            display: none;
+        }
+        .message {
+            max-width: 80%;
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message-tarot {
+            background-color: rgba(30, 30, 30, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 12px 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 6px rgba(103, 58, 183, 0.2);
+            margin-right: auto;
+            border: 1px solid rgba(122, 93, 199, 0.15);
+        }
+        .message-user {
+            background: linear-gradient(135deg, #6366f1 0%, #4c1d95 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-left: auto;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 6px rgba(103, 58, 183, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .tarot-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 8px;
+        }
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .typing-bubble {
+            background-color: #2a2a2a;
+            border-radius: 16px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #9ca3af;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+        .input-container {
+            padding: 12px 16px;
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(122, 93, 199, 0.3);
+            display: flex;
+            align-items: center;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .input-field {
+            flex: 1;
+            border: 1px solid #2a2a2a;
+            border-radius: 24px;
+            padding: 10px 16px;
+            font-size: 14px;
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            outline: none;
+        }
+        .send-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #6366f1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            cursor: pointer;
+        }
+        .draw-card-button {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border-radius: 24px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 16px auto;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        .card-preview {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .tarot-card {
+            width: 60px;
+            height: 100px;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-name {
+            font-size: 8px;
+            text-align: center;
+            margin-top: 4px;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+        .card-image {
+            width: 40px;
+            height: 60px;
+            background-color: #2a2a2a;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="select-spread.html" class="back-button">
+            <i class="fas fa-chevron-left text-gray-400"></i>
+        </a>
+        <h1 class="text-lg font-semibold">关系牌阵</h1>
+    </div>
+    
+    <div class="chat-container" id="chatContainer">
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>欢迎来到关系牌阵解读。这个牌阵将帮助你了解你们关系的过去、现在和未来。</p>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>请在心中默想你的问题，然后点击下方按钮抽取塔罗牌。</p>
+        </div>
+        
+        <!-- 抽牌按钮 -->
+        <button class="draw-card-button" onclick="window.location.href='draw-cards.html'">
+            <i class="fas fa-hand-sparkles mr-2"></i> 抽取塔罗牌
+        </button>
+        
+        <!-- 卡牌预览 -->
+        <div class="card-preview">
+            <div class="tarot-card">
+                <div class="card-image">
+                    <i class="fas fa-sun text-yellow-300"></i>
+                </div>
+                <div class="card-name">太阳</div>
+            </div>
+            <div class="tarot-card">
+                <div class="card-image">
+                    <i class="fas fa-heart text-pink-500"></i>
+                </div>
+                <div class="card-name">恋人</div>
+            </div>
+            <div class="tarot-card">
+                <div class="card-image">
+                    <i class="fas fa-star text-blue-300"></i>
+                </div>
+                <div class="card-name">星星</div>
+            </div>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>我看到你抽到了太阳、恋人和星星牌。这是一个非常积极的组合。</p>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>太阳牌代表过去，表明你们的关系有着良好的基础，充满了温暖和快乐。你们曾经经历过美好的时光，彼此之间有着真诚的感情。</p>
+        </div>
+        
+        <!-- 用户消息 -->
+        <div class="message message-user">
+            <p>是的，我们曾经非常快乐。</p>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>恋人牌代表现在，表明你们目前正处于需要做出选择的阶段。可能有一些需要共同决策的事情，或者你们正在考虑关系的下一步发展。这张牌也暗示着深厚的情感连接和吸引力仍然存在。</p>
+        </div>
+        
+        <!-- 用户消息 -->
+        <div class="message message-user">
+            <p>确实，我们最近在讨论是否要一起搬到新城市。</p>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>星星牌代表未来，这是一个充满希望的象征。它表明无论你们现在面临什么选择或挑战，未来都是光明的。这张牌鼓励你们保持信心，相信你们的关系会朝着积极的方向发展。</p>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>综合来看，这个牌阵显示你们的关系有着坚实的基础，虽然现在可能面临一些需要共同决策的事情，但只要保持开放的沟通和相互信任，未来是非常光明的。</p>
+        </div>
+        
+        <!-- 用户消息 -->
+        <div class="message message-user">
+            <p>谢谢你的解读，这给了我很多信心。</p>
+        </div>
+        
+        <!-- 塔罗师正在输入 -->
+        <div class="typing-indicator">
+            <div class="tarot-avatar">
+                <i class="fas fa-moon"></i>
+            </div>
+            <div class="typing-bubble">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 输入框 -->
+    <div class="input-container">
+        <input type="text" class="input-field" placeholder="输入你的问题...">
+        <div class="send-button">
+            <i class="fas fa-paper-plane"></i>
+        </div>
+    </div>
+</body>
+</html>

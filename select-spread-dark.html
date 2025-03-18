@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择牌阵 - 塔罗嗒嗒 (深色)</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="%23ffffff10"/><circle cx="30" cy="30" r="0.8" fill="%23ffffff08"/><circle cx="50" cy="10" r="0.6" fill="%23ffffff08"/><circle cx="70" cy="40" r="1.2" fill="%23ffffff10"/><circle cx="90" cy="20" r="0.8" fill="%23ffffff08"/><circle cx="20" cy="50" r="1" fill="%23ffffff10"/><circle cx="40" cy="70" r="0.6" fill="%23ffffff08"/><circle cx="60" cy="50" r="0.8" fill="%23ffffff08"/><circle cx="80" cy="80" r="1" fill="%23ffffff10"/><circle cx="10" cy="90" r="0.8" fill="%23ffffff08"/></svg>'), 
+                 radial-gradient(circle at 20% 30%, rgba(103, 58, 183, 0.15) 0%, transparent 50%),
+                 radial-gradient(circle at 80% 70%, rgba(63, 81, 181, 0.15) 0%, transparent 50%);
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .content {
+            height: 100%;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            padding-bottom: 20px;
+        }
+        .content::-webkit-scrollbar {
+            display: none;
+        }
+        .header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid rgba(122, 93, 199, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .back-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        .spread-card {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 15px rgba(103, 58, 183, 0.2);
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(122, 93, 199, 0.15);
+        }
+        .spread-card:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2), 0 0 8px rgba(103, 58, 183, 0.15);
+        }
+        .spread-image {
+            height: 160px;
+            background-color: #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .spread-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.5) 100%);
+        }
+        .spread-difficulty {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        .spread-tag {
+            display: inline-block;
+            background-color: #2a2a2a;
+            color: #a0aec0;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-right: 6px;
+        }
+        .love-gradient {
+            background: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%);
+        }
+        .career-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .health-gradient {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .question-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        .daily-gradient {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+        }
+        .card-placeholder {
+            width: 40px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="header">
+            <a href="home.html" class="back-button">
+                <i class="fas fa-chevron-left text-gray-400"></i>
+            </a>
+            <h1 class="text-lg font-semibold">选择牌阵</h1>
+        </div>
+        
+        <div class="p-4">
+            <h2 class="text-lg font-semibold mb-4">爱情占卜牌阵</h2>
+            
+            <!-- 关系牌阵 -->
+            <div class="spread-card mb-6" onclick="window.location.href='reading.html'">
+                <div class="spread-image love-gradient">
+                    <div class="spread-overlay"></div>
+                    <div class="spread-difficulty">简单 · 3张牌</div>
+                    
+                    <!-- 牌阵示意图 -->
+                    <div class="card-placeholder" style="left: 35%; top: 50%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 65%; top: 50%; transform: translate(-50%, -50%);"></div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg mb-1">关系牌阵</h3>
+                    <p class="text-gray-400 text-sm mb-3">分析两人关系现状与未来走向</p>
+                    <div>
+                        <span class="spread-tag">爱情</span>
+                        <span class="spread-tag">关系</span>
+                        <span class="spread-tag">简单</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 爱情十字牌阵 -->
+            <div class="spread-card mb-6" onclick="window.location.href='reading.html'">
+                <div class="spread-image love-gradient">
+                    <div class="spread-overlay"></div>
+                    <div class="spread-difficulty">中等 · 5张牌</div>
+                    
+                    <!-- 牌阵示意图 -->
+                    <div class="card-placeholder" style="left: 50%; top: 30%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 35%; top: 50%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 65%; top: 50%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 50%; top: 70%; transform: translate(-50%, -50%);"></div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg mb-1">爱情十字牌阵</h3>
+                    <p class="text-gray-400 text-sm mb-3">全面分析感情状况与发展方向</p>
+                    <div>
+                        <span class="spread-tag">爱情</span>
+                        <span class="spread-tag">全面</span>
+                        <span class="spread-tag">中等</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 灵魂伴侣牌阵 -->
+            <div class="spread-card mb-6" onclick="window.location.href='reading.html'">
+                <div class="spread-image love-gradient">
+                    <div class="spread-overlay"></div>
+                    <div class="spread-difficulty">高级 · 7张牌</div>
+                    
+                    <!-- 牌阵示意图 -->
+                    <div class="card-placeholder" style="left: 30%; top: 30%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 70%; top: 30%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 30%; top: 50%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 70%; top: 50%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 30%; top: 70%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 70%; top: 70%; transform: translate(-50%, -50%);"></div>
+                    <div class="card-placeholder" style="left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg mb-1">灵魂伴侣牌阵</h3>
+                    <p class="text-gray-400 text-sm mb-3">深入探索两人的灵魂连接与命运</p>
+                    <div>
+                        <span class="spread-tag">爱情</span>
+                        <span class="spread-tag">深度</span>
+                        <span class="spread-tag">高级</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

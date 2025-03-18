@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>占卜解读 - 塔罗嗒嗒</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f8fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .back-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .chat-container::-webkit-scrollbar {
+            display: none;
+        }
+        .message {
+            max-width: 80%;
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message-tarot {
+            background-color: white;
+            border-radius: 16px;
+            padding: 12px 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-right: auto;
+        }
+        .message-user {
+            background-color: #6366f1;
+            color: white;
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-left: auto;
+        }
+        .tarot-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 8px;
+        }
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .typing-bubble {
+            background-color: #e5e7eb;
+            border-radius: 16px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #9ca3af;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+        .input-container {
+            padding: 12px 16px;
+            background-color: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+        }
+        .input-field {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            border-radius: 24px;
+            padding: 10px 16px;
+            font-size: 14px;
+            background-color: #f1f5f9;
+            outline: none;
+        }
+        .send-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #6366f1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            cursor: pointer;
+        }
+        .draw-card-button {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border-radius: 24px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 16px auto;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        .card-preview {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .tarot-card {
+            width: 60px;
+            height: 100px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-name {
+            font-size: 8px;
+            text-align: center;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        .card-image {
+            width: 40px;
+            height: 60px;
+            background-color: #f1f5f9;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="select-spread.html" class="back-button">
+            <i class="fas fa-chevron-left text-gray-500"></i>
+        </a>
+        <h1 class="text-lg font-semibold">关系牌阵</h1>
+    </div>
+    
+    <div class="chat-container" id="chatContainer">
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>你好，我是你的塔罗占卜师。今天我们将使用关系牌阵来探索你的感情问题。</p>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>请在心中默想你想了解的感情问题，然后点击下方的"抽取塔罗牌"按钮。</p>
+        </div>
+        
+        <!-- 抽牌按钮 -->
+        <button class="draw-card-button" onclick="window.location.href='draw-cards.html'">
+            <i class="fas fa-magic mr-2"></i> 抽取塔罗牌
+        </button>
+        
+        <!-- 用户消息 -->
+        <div class="message message-user">
+            <p>我想了解我和现在的伴侣之间的关系发展如何？</p>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>感谢你的提问。我已经为你抽取了三张牌，分别代表过去、现在和未来。</p>
+        </div>
+        
+        <!-- 牌面预览 -->
+        <div class="card-preview">
+            <div class="tarot-card">
+                <div class="card-image">
+                    <i class="fas fa-sun text-yellow-500"></i>
+                </div>
+                <div class="card-name">太阳</div>
+            </div>
+            <div class="tarot-card">
+                <div class="card-image">
+                    <i class="fas fa-heart text-red-500"></i>
+                </div>
+                <div class="card-name">恋人</div>
+            </div>
+            <div class="tarot-card">
+                <div class="card-image">
+                    <i class="fas fa-star text-blue-500"></i>
+                </div>
+                <div class="card-name">星星</div>
+            </div>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>第一张牌是太阳，代表你们过去的关系充满了活力和热情，你们的相遇给彼此带来了温暖和光明。</p>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>第二张牌是恋人，表示你们目前的关系处于一个需要做出选择的阶段。这张牌象征着深厚的情感连接，但也暗示着你们可能需要共同面对一些挑战或决定。</p>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>第三张牌是星星，这是一个非常积极的预示。它表明你们的关系未来充满希望和可能性。星星牌鼓励你保持信心，相信你们的感情会朝着更加和谐、平衡的方向发展。</p>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>综合来看，你们的关系有着良好的基础，虽然现在可能面临一些需要共同决策的事情，但未来是光明的。建议你们保持开放的沟通，共同面对挑战，你们的感情会更加稳固。</p>
+        </div>
+        
+        <!-- 塔罗师消息 -->
+        <div class="message message-tarot">
+            <p>你还有其他问题想问吗？</p>
+        </div>
+        
+        <!-- 正在输入提示 -->
+        <div class="typing-indicator">
+            <div class="tarot-avatar">
+                <i class="fas fa-moon"></i>
+            </div>
+            <div class="typing-bubble">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="input-container">
+        <input type="text" class="input-field" placeholder="输入你的问题...">
+        <div class="send-button">
+            <i class="fas fa-paper-plane"></i>
+        </div>
+    </div>
+    
+    <script>
+        // 自动滚动到底部
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
+    </script>
+</body>
+</html>
